@@ -45,10 +45,26 @@ public abstract class Person implements java.io.Serializable {
 	public Date getDOB() {
 		return DOB;
 	}
-
-	public void setDOB(Date DOB){
-		this.DOB = DOB;
+	
+	/**
+	 * Creates a temporary Calendar object called CheckDOB
+	 * CheckDOB is set equal to DOB passed in as a Date type for setDOB
+	 * Uses before to evaluate if CheckDOB is 100 years before the current calendar year
+	 * If so, throws a Person Exception. 
+	 * @param DOB
+	 * @throws PersonException
+	 */
+	public void setDOB(Date DOB) throws PersonException{
+		Calendar today = Calendar.getInstance();
+		Calendar CheckDOB = Calendar.getInstance();
+		CheckDOB.setTime(DOB);
 		
+		if(CheckDOB.before((today.get(Calendar.YEAR) - 100))){
+			throw new PersonException(this);
+		}
+		else{
+			this.DOB = DOB;
+		}
 		
 	}
 
@@ -59,10 +75,25 @@ public abstract class Person implements java.io.Serializable {
 	public String getAddress() {
 		return address;
 	}
-
-	public void setPhone(String newPhone_number) {
-		phone_number = newPhone_number;
 	
+	/**
+	 * Check if the newPhone_number string passed into the setPhone method matches
+	 * the compiled regex. If it doesn't match, PersonException is thrown.
+	 * @param newPhone_number
+	 * @throws PersonException
+	 */
+	public void setPhone(String newPhone_number) throws PersonException{
+		String regex = "^\\(?([0-9]{3})\\)?[-.\\s]?([0-9]{3})[-.\\s]?([0-9]{4})$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher  matcher = pattern.matcher(newPhone_number);
+
+		if (!(matcher.matches())){
+			throw new PersonException(this);
+		}
+		else{
+			phone_number = newPhone_number;
+		}
+		
 	}
 
 	public String getPhone() {
@@ -89,7 +120,7 @@ public abstract class Person implements java.io.Serializable {
 	 */
 
 	public Person(String FirstName, String MiddleName, String LastName,
-			Date DOB, String Address, String Phone_number, String Email)
+			Date DOB, String Address, String Phone_number, String Email) throws PersonException
 	{
 		this.FirstName = FirstName;
 		this.MiddleName = MiddleName;
@@ -110,12 +141,14 @@ public abstract class Person implements java.io.Serializable {
 		System.out.println(this.DOB);
 	}
 
-	public int PrintAge() {
+	public int PrintAge() throws PersonException{
 		Calendar today = Calendar.getInstance();
 		Calendar birthDate = Calendar.getInstance();
 
 		int age = 0;
+		System.out.println(today.get(Calendar.YEAR));
 		birthDate.setTime(this.DOB);
+				
 		if (birthDate.after(today)) {
 			throw new IllegalArgumentException("Can't be born in the future");
 		}
